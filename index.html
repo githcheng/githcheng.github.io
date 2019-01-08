@@ -248,7 +248,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/01/06/“springboot生命周期”/" itemprop="url">“springboot生命周期”</a></h1>
+                <a class="post-title-link" href="/2019/01/06/“springboot生命周期”/" itemprop="url">Untitled</a></h1>
         
 
         <div class="post-meta">
@@ -302,7 +302,7 @@
           
             <h1 id="springboot打包成的jar为什么直接执行？"><a href="#springboot打包成的jar为什么直接执行？" class="headerlink" title="springboot打包成的jar为什么直接执行？"></a>springboot打包成的jar为什么直接执行？</h1><p>在jar中MTEA-INF/manifest.mf中配置了相应的MAIN-CLASS</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Manifest-Version: 1.0</span><br><span class="line">Implementation-Title: training</span><br><span class="line">Implementation-Version: 0.0.1-SNAPSHOT</span><br><span class="line">Built-By: chengguojiang</span><br><span class="line">Implementation-Vendor-Id: com.example</span><br><span class="line">Spring-Boot-Version: 2.0.2.RELEASE</span><br><span class="line">Main-Class: org.springframework.boot.loader.JarLauncher</span><br><span class="line">Start-Class: com.example.trainingproject.TrainingApplication</span><br><span class="line">Spring-Boot-Classes: BOOT-INF/classes/</span><br><span class="line">Spring-Boot-Lib: BOOT-INF/lib/</span><br><span class="line">Created-By: Apache Maven 3.3.9</span><br><span class="line">Build-Jdk: 1.8.0_161</span><br><span class="line">Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo</span><br><span class="line"> ot-starter-parent/training-project</span><br></pre></td></tr></table></figure>
-<h1 id="springboot打包插件spring-boot-maven-plugin-打包过程"><a href="#springboot打包插件spring-boot-maven-plugin-打包过程" class="headerlink" title="springboot打包插件spring-boot-maven-plugin 打包过程"></a>springboot打包插件spring-boot-maven-plugin 打包过程</h1><p>打包后的目录格式如下：<br><img src="https://note.youdao.com/yws/public/resource/43d3203bd14d60a6d6bae31816b11d12/xmlnote/7CF124F3BFE1497E9934B1817804B51C/31031" alt="image">  </p>
+<h1 id="springboot打包插件spring-boot-maven-plugin-打包过程"><a href="#springboot打包插件spring-boot-maven-plugin-打包过程" class="headerlink" title="springboot打包插件spring-boot-maven-plugin 打包过程"></a>springboot打包插件spring-boot-maven-plugin 打包过程</h1><p>打包后的目录格式如下：<br><img src="images.52hts.club/43d3203bd14d60a6d6bae31816b11d12.png" alt="image">  </p>
 <p>具体plugin的编写方法，可以去搜索 “自定义maven插件”<br>在这个插件 需要注意 maven的执行目标阶段 为 pacakage  </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Mojo(name = &quot;repackage&quot;, defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)</span><br><span class="line">public class RepackageMojo extends AbstractDependencyFilterMojo &#123;</span><br><span class="line">    // TODO</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>打包过程的主要知识点：  </p>
@@ -319,7 +319,7 @@
 <li></li>
 </ul>
 <h1 id="参考文档："><a href="#参考文档：" class="headerlink" title="参考文档："></a>参考文档：</h1><p><a href="http://ifeve.com/spring-boot-loader/" target="_blank" rel="noopener">http://ifeve.com/spring-boot-loader/</a>  </p>
-<h5 id="隐藏内容"><a href="#隐藏内容" class="headerlink" title="隐藏内容"></a>隐藏内容</h5>
+
           
         
       
