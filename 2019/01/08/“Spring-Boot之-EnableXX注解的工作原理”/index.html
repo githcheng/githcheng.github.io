@@ -81,14 +81,14 @@
 
 <meta name="description" content="SpringBoot自动配置是如何实现的？ 在springboot启动过程会使用到一些特别的beanfactoryPostProcessor, 按照spring启动的顺序先invoke这些beanfactoryPostProcessor；       createApplicationContext-&amp;gt; AnnotatedBeanDefinitionReader-&amp;gt; Annotatio">
 <meta property="og:type" content="article">
-<meta property="og:title" content="“Spring-Boot之@EnableXX注解的工作原理”">
+<meta property="og:title" content="Spring-Boot之@EnableXX注解的工作原理">
 <meta property="og:url" content="http://yoursite.com/2019/01/08/“Spring-Boot之-EnableXX注解的工作原理”/index.html">
 <meta property="og:site_name" content="果酱">
 <meta property="og:description" content="SpringBoot自动配置是如何实现的？ 在springboot启动过程会使用到一些特别的beanfactoryPostProcessor, 按照spring启动的顺序先invoke这些beanfactoryPostProcessor；       createApplicationContext-&amp;gt; AnnotatedBeanDefinitionReader-&amp;gt; Annotatio">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-01-08T15:18:50.333Z">
+<meta property="og:updated_time" content="2019-01-08T16:05:06.914Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="“Spring-Boot之@EnableXX注解的工作原理”">
+<meta name="twitter:title" content="Spring-Boot之@EnableXX注解的工作原理">
 <meta name="twitter:description" content="SpringBoot自动配置是如何实现的？ 在springboot启动过程会使用到一些特别的beanfactoryPostProcessor, 按照spring启动的顺序先invoke这些beanfactoryPostProcessor；       createApplicationContext-&amp;gt; AnnotatedBeanDefinitionReader-&amp;gt; Annotatio">
 
 
@@ -125,7 +125,7 @@
 
 
 
-  <title>“Spring-Boot之@EnableXX注解的工作原理” | 果酱</title>
+  <title>Spring-Boot之@EnableXX注解的工作原理 | 果酱</title>
   
 
 
@@ -249,7 +249,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">“Spring-Boot之@EnableXX注解的工作原理”</h1>
+          <h1 class="post-title" itemprop="name headline">Spring-Boot之@EnableXX注解的工作原理</h1>
         
 
         <div class="post-meta">
@@ -306,9 +306,9 @@
 <ul>
 <li>其中一个比较关系的就是ConfigurationClassPostProcessor主要处理@Conguration周边相关的注解，如import、importresource、@conditional、@XXscan等;   </li>
 <li>在这个类中先会去spring.fatories下找到所有的AutoConguration类，再看看这些AutoConguration类上条件注解@Conditional的条件是否符合要求，如果符合要求就所名下标记的bean加入进来， 另外一种情况也会引入名下@import相关类；  </li>
-<li>这些可根据选择性地加入bean的功能本质上就是springboot自动配置功能；   <h4 id="具体分析一个实例AopAutoConfiguration"><a href="#具体分析一个实例AopAutoConfiguration" class="headerlink" title="具体分析一个实例AopAutoConfiguration"></a>具体分析一个实例AopAutoConfiguration</h4></li>
+<li>这些可根据选择性地加入bean的功能本质上就是springboot自动配置功能；   </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@Configuration</span><br><span class="line">@ConditionalOnClass(&#123; EnableAspectJAutoProxy.class, Aspect.class, Advice.class,</span><br><span class="line">		AnnotatedElement.class &#125;)</span><br><span class="line">@ConditionalOnProperty(prefix = &quot;spring.aop&quot;, name = &quot;auto&quot;, havingValue = &quot;true&quot;, matchIfMissing = true)</span><br><span class="line">public class AopAutoConfiguration &#123;</span><br><span class="line"></span><br><span class="line">	@Configuration</span><br><span class="line">	@EnableAspectJAutoProxy(proxyTargetClass = false)</span><br><span class="line">	@ConditionalOnProperty(prefix = &quot;spring.aop&quot;, name = &quot;proxy-target-class&quot;, havingValue = &quot;false&quot;, matchIfMissing = false)</span><br><span class="line">	public static class JdkDynamicAutoProxyConfiguration &#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	@Configuration</span><br><span class="line">	@EnableAspectJAutoProxy(proxyTargetClass = true)</span><br><span class="line">	@ConditionalOnProperty(prefix = &quot;spring.aop&quot;, name = &quot;proxy-target-class&quot;, havingValue = &quot;true&quot;, matchIfMissing = true)</span><br><span class="line">	public static class CglibAutoProxyConfiguration &#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="具体分析一个实例AopAutoConfiguration"><a href="#具体分析一个实例AopAutoConfiguration" class="headerlink" title="具体分析一个实例AopAutoConfiguration"></a>具体分析一个实例AopAutoConfiguration</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@Configuration</span><br><span class="line">@ConditionalOnClass(&#123; EnableAspectJAutoProxy.class, Aspect.class, Advice.class,</span><br><span class="line">		AnnotatedElement.class &#125;)</span><br><span class="line">@ConditionalOnProperty(prefix = &quot;spring.aop&quot;, name = &quot;auto&quot;, havingValue = &quot;true&quot;, matchIfMissing = true)</span><br><span class="line">public class AopAutoConfiguration &#123;</span><br><span class="line"></span><br><span class="line">	@Configuration</span><br><span class="line">	@EnableAspectJAutoProxy(proxyTargetClass = false)</span><br><span class="line">	@ConditionalOnProperty(prefix = &quot;spring.aop&quot;, name = &quot;proxy-target-class&quot;, havingValue = &quot;false&quot;, matchIfMissing = false)</span><br><span class="line">	public static class JdkDynamicAutoProxyConfiguration &#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	@Configuration</span><br><span class="line">	@EnableAspectJAutoProxy(proxyTargetClass = true)</span><br><span class="line">	@ConditionalOnProperty(prefix = &quot;spring.aop&quot;, name = &quot;proxy-target-class&quot;, havingValue = &quot;true&quot;, matchIfMissing = true)</span><br><span class="line">	public static class CglibAutoProxyConfiguration &#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>每一个自动配置的类都需要有@Configuration，本质也十分的清楚如下， 一个@Component而已</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public @interface Configuration &#123;</span><br></pre></td></tr></table></figure>
 <p>AopAutoConfiguration有很多条件注解(@ConditionalOnClass,@ConditionalOnProperty)，本质上都是@Conditioal,需要全部满足才能是加载AopAutoConfiguration类中的Bean;   </p>
@@ -473,7 +473,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringBoot自动配置是如何实现的？"><span class="nav-number">1.</span> <span class="nav-text">SpringBoot自动配置是如何实现的？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#具体分析一个实例AopAutoConfiguration"><span class="nav-number">1.0.1.</span> <span class="nav-text">具体分析一个实例AopAutoConfiguration</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#EnableXX注解的本质工作原理是什么？"><span class="nav-number">2.</span> <span class="nav-text">@EnableXX注解的本质工作原理是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ConfigurationClassPostProcessor"><span class="nav-number">3.</span> <span class="nav-text">ConfigurationClassPostProcessor</span></a></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringBoot自动配置是如何实现的？"><span class="nav-number">1.</span> <span class="nav-text">SpringBoot自动配置是如何实现的？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体分析一个实例AopAutoConfiguration"><span class="nav-number">2.</span> <span class="nav-text">具体分析一个实例AopAutoConfiguration</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EnableXX注解的本质工作原理是什么？"><span class="nav-number">3.</span> <span class="nav-text">@EnableXX注解的本质工作原理是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ConfigurationClassPostProcessor"><span class="nav-number">4.</span> <span class="nav-text">ConfigurationClassPostProcessor</span></a></li></ol></div>
             
 
           </div>
