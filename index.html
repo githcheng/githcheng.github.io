@@ -229,151 +229,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/08/“Spring-Boot之-EnableXX注解的工作原理”/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/01/08/“Spring-Boot之-EnableXX注解的工作原理”/" itemprop="url">“Spring-Boot之@EnableXX注解的工作原理”</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-08T23:17:25+08:00">
-                2019-01-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="SpringBoot自动配置是如何实现的？"><a href="#SpringBoot自动配置是如何实现的？" class="headerlink" title="SpringBoot自动配置是如何实现的？"></a>SpringBoot自动配置是如何实现的？</h2><ul>
-<li>在springboot启动过程会使用到一些特别的beanfactoryPostProcessor, 按照spring启动的顺序先invoke这些beanfactoryPostProcessor；     </li>
-</ul>
-<p>createApplicationContext-&gt; AnnotatedBeanDefinitionReader-&gt; AnnotationConfigUtils<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public static Set&lt;BeanDefinitionHolder&gt; registerAnnotationConfigProcessors(</span><br><span class="line">			BeanDefinitionRegistry registry, @Nullable Object source) &#123;</span><br><span class="line"></span><br><span class="line">		DefaultListableBeanFactory beanFactory = unwrapDefaultListableBeanFactory(registry);</span><br><span class="line">		if (beanFactory != null) &#123;</span><br><span class="line">			if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) &#123;</span><br><span class="line">				beanFactory.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);</span><br><span class="line">			&#125;</span><br><span class="line">			if (!(beanFactory.getAutowireCandidateResolver() instanceof ContextAnnotationAutowireCandidateResolver)) &#123;</span><br><span class="line">				beanFactory.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		Set&lt;BeanDefinitionHolder&gt; beanDefs = new LinkedHashSet&lt;&gt;(8);</span><br><span class="line"></span><br><span class="line">		if (!registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) &#123;</span><br><span class="line">			RootBeanDefinition def = new RootBeanDefinition(ConfigurationClassPostProcessor.class);</span><br><span class="line">			def.setSource(source);</span><br><span class="line">			beanDefs.add(registerPostProcessor(registry, def, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME));</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) &#123;</span><br><span class="line">			RootBeanDefinition def = new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class);</span><br><span class="line">			def.setSource(source);</span><br><span class="line">			beanDefs.add(registerPostProcessor(registry, def, AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME));</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>其中一个比较关系的就是ConfigurationClassPostProcessor主要处理@Conguration周边相关的注解，如import、importresource、@conditional、@XXscan等;   </li>
-<li>在这个类中先会去spring.fatories下找到所有的AutoConguration类，再看看这些AutoConguration类上条件注解@Conditional的条件是否符合要求，如果符合要求就所名下标记的bean加入进来， 另外一种情况也会引入名下@import相关类；  </li>
-<li>这些可根据选择性地加入bean的功能本质上就是springboot自动配置功能；   <h4 id="具体分析一个实例AopAutoConfiguration"><a href="#具体分析一个实例AopAutoConfiguration" class="headerlink" title="具体分析一个实例AopAutoConfiguration"></a>具体分析一个实例AopAutoConfiguration</h4></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@Configuration</span><br><span class="line">@ConditionalOnClass(&#123; EnableAspectJAutoProxy.class, Aspect.class, Advice.class,</span><br><span class="line">		AnnotatedElement.class &#125;)</span><br><span class="line">@ConditionalOnProperty(prefix = &quot;spring.aop&quot;, name = &quot;auto&quot;, havingValue = &quot;true&quot;, matchIfMissing = true)</span><br><span class="line">public class AopAutoConfiguration &#123;</span><br><span class="line"></span><br><span class="line">	@Configuration</span><br><span class="line">	@EnableAspectJAutoProxy(proxyTargetClass = false)</span><br><span class="line">	@ConditionalOnProperty(prefix = &quot;spring.aop&quot;, name = &quot;proxy-target-class&quot;, havingValue = &quot;false&quot;, matchIfMissing = false)</span><br><span class="line">	public static class JdkDynamicAutoProxyConfiguration &#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	@Configuration</span><br><span class="line">	@EnableAspectJAutoProxy(proxyTargetClass = true)</span><br><span class="line">	@ConditionalOnProperty(prefix = &quot;spring.aop&quot;, name = &quot;proxy-target-class&quot;, havingValue = &quot;true&quot;, matchIfMissing = true)</span><br><span class="line">	public static class CglibAutoProxyConfiguration &#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>每一个自动配置的类都需要有@Configuration，本质也十分的清楚如下， 一个@Component而已</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public @interface Configuration &#123;</span><br></pre></td></tr></table></figure>
-<p>AopAutoConfiguration有很多条件注解(@ConditionalOnClass,@ConditionalOnProperty)，本质上都是@Conditioal,需要全部满足才能是加载AopAutoConfiguration类中的Bean;   </p>
-<p>到了分析关键EnableAspectJAutoProxy的时候了， 所谓的@EnableXX其实都只是为了引入别一个可以类而已，这个类可以根据@EnableXX中的内容作不同的动作，如AOP可以选择是cglib还jdk动态代理；   </p>
-<p>下面我们来看看  ，很符合我们的要求  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@Target(ElementType.TYPE)</span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">@Documented</span><br><span class="line">@Import(AspectJAutoProxyRegistrar.class)</span><br><span class="line">public @interface EnableAspectJAutoProxy &#123;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * Indicate whether subclass-based (CGLIB) proxies are to be created as opposed</span><br><span class="line">	 * to standard Java interface-based proxies. The default is &#123;@code false&#125;.</span><br><span class="line">	 */</span><br><span class="line">	boolean proxyTargetClass() default false;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * Indicate that the proxy should be exposed by the AOP framework as a &#123;@code ThreadLocal&#125;</span><br><span class="line">	 * for retrieval via the &#123;@link org.springframework.aop.framework.AopContext&#125; class.</span><br><span class="line">	 * Off by default, i.e. no guarantees that &#123;@code AopContext&#125; access will work.</span><br><span class="line">	 * @since 4.3.1</span><br><span class="line">	 */</span><br><span class="line">	boolean exposeProxy() default false;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>AspectJAutoProxyRegistrar.class这个类所做的工作我们不难想象可能是个beanpostprocessor实现，并所自己注入到容器中，在类实例化时负责对相关类进行aop处理，下面我们来看看代码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">class AspectJAutoProxyRegistrar implements ImportBeanDefinitionRegistrar &#123;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * Register, escalate, and configure the AspectJ auto proxy creator based on the value</span><br><span class="line">	 * of the @&#123;@link EnableAspectJAutoProxy#proxyTargetClass()&#125; attribute on the importing</span><br><span class="line">	 * &#123;@code @Configuration&#125; class.</span><br><span class="line">	 */</span><br><span class="line">	@Override</span><br><span class="line">	public void registerBeanDefinitions(</span><br><span class="line">			AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) &#123;</span><br><span class="line"></span><br><span class="line">		AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(registry);</span><br><span class="line"></span><br><span class="line">		AnnotationAttributes enableAspectJAutoProxy =</span><br><span class="line">				AnnotationConfigUtils.attributesFor(importingClassMetadata, EnableAspectJAutoProxy.class);</span><br><span class="line">		if (enableAspectJAutoProxy != null) &#123;</span><br><span class="line">			if (enableAspectJAutoProxy.getBoolean(&quot;proxyTargetClass&quot;)) &#123;</span><br><span class="line">				AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);</span><br><span class="line">			&#125;</span><br><span class="line">			if (enableAspectJAutoProxy.getBoolean(&quot;exposeProxy&quot;)) &#123;</span><br><span class="line">				AopConfigUtils.forceAutoProxyCreatorToExposeProxy(registry);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-<p>咦？？？怎么不是这样子的呢？ 我们详情分析一下代码，这个类没有没有承担成beanPostProcessor的职责，而是简简单单地注入了一下AnnotationAwareAspectJAutoProxyCreator.class类</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(registry);</span><br></pre></td></tr></table></figure>
-<p>而注入的这个类我们再看一下，最终是实现了个abstract类，果不其然， 实现了beanPostProcessor</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport</span><br><span class="line">		implements SmartInstantiationAwareBeanPostProcessor, BeanFactoryAware &#123;</span><br></pre></td></tr></table></figure>
-<p>我们再回过头现看看，自动配置的就是一步一步根据条件注解的值来确定的， 最终结果就是向容器中注入一个bean,而这个bean可能是一个实际要用的，也可以一个辅助类的如AOP是一个beanPostProcessor作用到其它bean的一个bean;   </p>
-<h2 id="EnableXX注解的本质工作原理是什么？"><a href="#EnableXX注解的本质工作原理是什么？" class="headerlink" title="@EnableXX注解的本质工作原理是什么？"></a>@EnableXX注解的本质工作原理是什么？</h2><p>根据上面自动配置的实现方式及分析，@EnableXX主要是通过@import方式引入一个其它类，并注入到容器中；</p>
-<h2 id="ConfigurationClassPostProcessor"><a href="#ConfigurationClassPostProcessor" class="headerlink" title="ConfigurationClassPostProcessor"></a>ConfigurationClassPostProcessor</h2><p>上面的分析已经部分展示了ConfigurationClassPostProcessor功能，ConfigurationClassPostProcessor是一个beanFactoryPostProcessor, 做的工作相当的多， 主要是承担了对@Conguration @import、@importResorce @Condition @CompontsScan等功能注解的处理，找到全部符合以注解方式注入的bean;<br>具体分析我们再开一篇</p>
-<p>参考：<br><a href="https://www.jianshu.com/p/3da069bd865c" target="_blank" rel="noopener">https://www.jianshu.com/p/3da069bd865c</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/08/“springboot生命周期”/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -445,27 +300,145 @@
       
         
           
-            <h1 id="springboot打包成的jar为什么直接执行？"><a href="#springboot打包成的jar为什么直接执行？" class="headerlink" title="springboot打包成的jar为什么直接执行？"></a>springboot打包成的jar为什么直接执行？</h1><p>在jar中MTEA-INF/manifest.mf中配置了相应的MAIN-CLASS</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Manifest-Version: 1.0</span><br><span class="line">Implementation-Title: training</span><br><span class="line">Implementation-Version: 0.0.1-SNAPSHOT</span><br><span class="line">Built-By: chengguojiang</span><br><span class="line">Implementation-Vendor-Id: com.example</span><br><span class="line">Spring-Boot-Version: 2.0.2.RELEASE</span><br><span class="line">Main-Class: org.springframework.boot.loader.JarLauncher</span><br><span class="line">Start-Class: com.example.trainingproject.TrainingApplication</span><br><span class="line">Spring-Boot-Classes: BOOT-INF/classes/</span><br><span class="line">Spring-Boot-Lib: BOOT-INF/lib/</span><br><span class="line">Created-By: Apache Maven 3.3.9</span><br><span class="line">Build-Jdk: 1.8.0_161</span><br><span class="line">Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo</span><br><span class="line"> ot-starter-parent/training-project</span><br></pre></td></tr></table></figure>
-<h1 id="springboot打包插件spring-boot-maven-plugin-打包过程"><a href="#springboot打包插件spring-boot-maven-plugin-打包过程" class="headerlink" title="springboot打包插件spring-boot-maven-plugin 打包过程"></a>springboot打包插件spring-boot-maven-plugin 打包过程</h1><p>打包后的目录格式如下：<br><img src="http://images.52hts.club/43d3203bd14d60a6d6bae31816b11d12.png" alt="image">  </p>
-<p>具体plugin的编写方法，可以去搜索 “自定义maven插件”<br>在这个插件 需要注意 maven的执行目标阶段 为 pacakage  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Mojo(name = &quot;repackage&quot;, defaultPhase = LifecyclePhase.PACKAGE, requiresProject = true, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)</span><br><span class="line">public class RepackageMojo extends AbstractDependencyFilterMojo &#123;</span><br><span class="line">    // TODO</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>打包过程的主要知识点：  </p>
-<ul>
-<li>拷贝org.springframework.boot.loader这个包的文件放入jar中；   </li>
-<li>把依赖的jar拷贝到BOOT-INF/lib   </li>
-<li>把工程代码拷贝到/BOOT-INF/classes  </li>
-<li>思考：为什么要拷贝org.springframework.boot.loader这个包的文件放入jar中，而不是把整个启动jar放在BOOT-INF/lib 中？  </li>
-</ul>
-<h1 id="springboot的启动过程？"><a href="#springboot的启动过程？" class="headerlink" title="springboot的启动过程？"></a>springboot的启动过程？</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar XXX.jar</span><br></pre></td></tr></table></figure>
-<ul>
-<li>首先执行manifest.mf配置的main-class <code>JarLauncher.jar</code></li>
-<li>最终会invoke <code>Start-Class: com.example.trainingproject.TrainingApplication</code> 这个用户自定义启动类  </li>
-<li></li>
-</ul>
-<h1 id="参考文档："><a href="#参考文档：" class="headerlink" title="参考文档："></a>参考文档：</h1><p><a href="http://ifeve.com/spring-boot-loader/" target="_blank" rel="noopener">http://ifeve.com/spring-boot-loader/</a>  </p>
+          springboot打包成的jar为什么直接执行？在jar中MTEA-INF/manifest.mf中配置了相应的MAIN-CLASS
+1234567891011121314Manifest-Version: 1.0Implementation-Title: trainingImplementati
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/01/08/“springboot生命周期”/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/08/“Spring-Boot之-EnableXX注解的工作原理”/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/01/08/“Spring-Boot之-EnableXX注解的工作原理”/" itemprop="url">“Spring-Boot之@EnableXX注解的工作原理”</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-08T23:17:25+08:00">
+                2019-01-08
+              </time>
+            
+
+            
+
+            
+          </span>
 
           
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          SpringBoot自动配置是如何实现的？
+在springboot启动过程会使用到一些特别的beanfactoryPostProcessor, 按照spring启动的顺序先invoke这些beanfactoryPostProcessor；     
+
+createApplicationContext
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/01/08/“Spring-Boot之-EnableXX注解的工作原理”/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
